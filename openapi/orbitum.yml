@@ -1,0 +1,44 @@
+openapi: 3.0.2
+
+info:
+  title: Orbitum - oauth provider
+  version: ${project.version}
+  description: Minimal OAuth/OIDC-lite provider for integration with other betelgeuse servises.
+
+tags:
+  - name: oauth
+    description: OAuth 2.1 and OIDC-lite endpoints
+  - name: clients
+    description: Client registration and lookup
+  - name: users
+    description: Basic user registration and profile endpoints
+
+components:
+  securitySchemes:
+    clientAuth:
+      type: http
+      scheme: basic
+      description: Client authentication via HTTP Basic (client_id/client_secret)
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer access token (JWT) for protected endpoints
+
+paths:
+  /oauth/authorize:
+    $ref: ./api/OauthAuthorize.yml
+  /oauth/token:
+    $ref: ./api/OauthToken.yml
+  /oauth/introspect:
+    $ref: ./api/OauthIntrospect.yml
+  /oauth/revoke:
+    $ref: ./api/OauthRevoke.yml
+  /oauth/jwks:
+    $ref: ./api/OauthJwks.yml
+  /oauth/userinfo:
+    $ref: ./api/OauthUserinfo.yml
+  /clients:
+    $ref: ./api/ClientsCreate.yml
+  /users:
+    $ref: ./api/UsersCreate.yml

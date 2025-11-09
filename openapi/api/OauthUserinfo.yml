@@ -1,0 +1,19 @@
+get:
+  tags: [oauth]
+  summary: OIDC userinfo
+  description: Returns basic user info for the subject identified by the bearer token.
+  security:
+    - bearerJwt: []
+  responses:
+    '200':
+      description: User info
+      content:
+        application/json:
+          schema:
+            $ref: ../model/UserInfo.yml
+    '401':
+      description: Invalid or missing access token
+      content:
+        application/json:
+          schema:
+            $ref: ../model/ErrorResponse.yml

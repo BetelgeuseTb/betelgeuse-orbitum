@@ -1,0 +1,39 @@
+post:
+  tags: [oauth]
+  summary: Introspect an access or refresh token
+  description: RFC 7662-compatible introspection endpoint. Requires client authentication.
+  security:
+    - clientAuth: []
+  requestBody:
+    required: true
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+            token_type_hint:
+              type: string
+              enum: [access_token, refresh_token]
+          required:
+            - token
+  responses:
+    '200':
+      description: Introspection result
+      content:
+        application/json:
+          schema:
+            $ref: ../model/IntrospectionResponse.yml
+    '400':
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: ../model/ErrorResponse.yml
+    '401':
+      description: Invalid client authentication
+      content:
+        application/json:
+          schema:
+            $ref: ../model/ErrorResponse.yml

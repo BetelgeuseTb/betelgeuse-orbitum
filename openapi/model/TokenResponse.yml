@@ -1,0 +1,22 @@
+type: object
+required:
+  - access_token
+  - token_type
+  - expires_in
+properties:
+  access_token:
+    type: string
+  token_type:
+    type: string
+    example: Bearer
+  expires_in:
+    type: integer
+    format: int32
+  refresh_token:
+    type: string
+  scope:
+    type: string
+    description: Space-delimited scopes
+  id_token:
+    type: string
+    description: Present for OIDC Authorization Code flow

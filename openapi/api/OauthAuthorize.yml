@@ -1,0 +1,59 @@
+get:
+  tags: [oauth]
+  summary: Start Authorization Code flow with PKCE
+  description: Initiates user authorization and consent. On success, redirects to redirect_uri with code and state. PKCE is required for public clients.
+  parameters:
+    - in: query
+      name: response_type
+      schema:
+        type: string
+        enum: [code]
+      required: true
+    - in: query
+      name: client_id
+      schema:
+        type: string
+      required: true
+    - in: query
+      name: redirect_uri
+      schema:
+        type: string
+        format: uri
+      required: true
+    - in: query
+      name: scope
+      schema:
+        type: string
+      required: true
+      description: Space-delimited scopes
+    - in: query
+      name: state
+      schema:
+        type: string
+      required: true
+    - in: query
+      name: code_challenge
+      schema:
+        type: string
+      required: true
+    - in: query
+      name: code_challenge_method
+      schema:
+        type: string
+        enum: [S256]
+      required: true
+  responses:
+    '302':
+      description: Redirect with authorization code
+      headers:
+        Location:
+          schema:
+            type: string
+            format: uri
+          description: Redirect URI containing code and state
+    '400':
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: ../model/ErrorResponse.yml

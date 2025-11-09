@@ -1,0 +1,23 @@
+post:
+  tags: [users]
+  summary: Register user
+  description: Creates a user with hashed password (Argon2id). This is an MVP helper endpoint.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../model/RegisterUserRequest.yml
+  responses:
+    '201':
+      description: User created
+      content:
+        application/json:
+          schema:
+            $ref: ../model/RegisterUserResponse.yml
+    '400':
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: ../model/ErrorResponse.yml
