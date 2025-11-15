@@ -24,4 +24,13 @@ const (
         FROM orbitum.roles
         ORDER BY id;
     `
+
+	RoleUpdate = `
+        UPDATE orbitum.roles 
+        SET name=$2, description=$3 
+        WHERE id=$1 
+        RETURNING id, name, description;
+    `
+
+	RoleDelete = `DELETE FROM orbitum.roles WHERE id = $1;`
 )

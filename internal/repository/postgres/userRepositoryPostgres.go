@@ -6,7 +6,7 @@ import (
 
 	"github.com/BetelgeuseTb/betelgeuse-orbitum/internal/model"
 	"github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository"
-	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/sql"
+	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository/sql"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -14,7 +14,7 @@ type userRepoPG struct {
 	db *pgxpool.Pool
 }
 
-func NewUserRepository(db *pgxpool.Pool) repo.UserRepository {
+func NewUserRepository(db *pgxpool.Pool) repository.UserRepository {
 	return &userRepoPG{db: db}
 }
 
