@@ -1,0 +1,29 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "orbitum"
+  password: "orbitum"
+  dbname: "orbitum"
+  sslmode: "disable"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+
+jwt:
+  private_key_path: "./keys/private.pem"
+  public_key_path: "./keys/public.pem"
+  access_expiry: 15m
+  refresh_expiry: 720h
+
+oauth:
+  issuer: "http://localhost:8080"
