@@ -6,7 +6,7 @@ import (
 
 	"github.com/BetelgeuseTb/betelgeuse-orbitum/internal/model"
 	"github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository"
-	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository/sql"
+	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository/postgres/sql"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

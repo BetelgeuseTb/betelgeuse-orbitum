@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/BetelgeuseTb/betelgeuse-orbitum/internal/model"
-	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository/sql"
+	sqlq "github.com/BetelgeuseTb/betelgeuse-orbitum/internal/repository/postgres/sql"
 )
 
 type UserRoleRepoPG struct {
