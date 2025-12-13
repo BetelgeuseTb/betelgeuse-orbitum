@@ -1,44 +1,165 @@
-openapi: 3.0.2
+openapi: 3.0.3
 
 info:
-  title: Orbitum - oauth provider
-  version: ${project.version}
-  description: Minimal OAuth/OIDC-lite provider for integration with other betelgeuse servises.
+  title: Orbitum OAuth2 / OpenID Connect Provider
+  version: 1.0.0
 
-tags:
-  - name: oauth
-    description: OAuth 2.1 and OIDC-lite endpoints
-  - name: clients
-    description: Client registration and lookup
-  - name: users
-    description: Basic user registration and profile endpoints
+servers:
+  - url: https://auth.example.com
+
+paths:
+
+  /authorize:
+    get:
+      summary: Authorization endpoint
+      parameters:
+        - name: response_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [code]
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redirect_uri
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: scope
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: code_challenge
+          in: query
+          schema:
+            type: string
+        - name: code_challenge_method
+          in: query
+          schema:
+            type: string
+            enum: [S256, plain]
+      responses:
+        "302":
+          description: Redirect with authorization code
+
+  /token:
+    post:
+      summary: Token endpoint
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: ./components/schemas/request/token.yaml
+      responses:
+        "200":
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/response/token.yaml
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/response/error.yaml
+
+  /introspect:
+    post:
+      summary: Token introspection
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: ./components/schemas/request/introspect.yaml
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/response/introspection.yaml
+
+  /revoke:
+    post:
+      summary: Token revocation
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: ./components/schemas/request/revoke.yaml
+      responses:
+        "200":
+          description: Token revoked
+
+  /.well-known/openid-configuration:
+    get:
+      summary: OpenID Provider Metadata
+      responses:
+        "200":
+          description: OpenID configuration
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/response/well_known.yaml
+
+  /.well-known/jwks.json:
+    get:
+      summary: JSON Web Key Set
+      responses:
+        "200":
+          description: Key set
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      $ref: ./components/schemas/response/jwk.yaml
+
+  /userinfo:
+    get:
+      summary: UserInfo endpoint
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Get user info
+          content:
+            application/json:
+              schema:
+                $ref: ./components/schemas/response/userinfo.yaml
+
+  /logout:
+    post:
+      summary: End user session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: ./components/schemas/request/logout.yaml
+      responses:
+        "204":
+          description: Logged out
 
 components:
   securitySchemes:
-    clientAuth:
-      type: http
-      scheme: basic
-      description: Client authentication via HTTP Basic (client_id/client_secret)
-    bearerJwt:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Bearer access token (JWT) for protected endpoints
-
-paths:
-  /oauth/authorize:
-    $ref: ./api/OauthAuthorize.yml
-  /oauth/token:
-    $ref: ./api/OauthToken.yml
-  /oauth/introspect:
-    $ref: ./api/OauthIntrospect.yml
-  /oauth/revoke:
-    $ref: ./api/OauthRevoke.yml
-  /oauth/jwks:
-    $ref: ./api/OauthJwks.yml
-  /oauth/userinfo:
-    $ref: ./api/OauthUserinfo.yml
-  /clients:
-    $ref: ./api/ClientsCreate.yml
-  /users:
-    $ref: ./api/UsersCreate.yml

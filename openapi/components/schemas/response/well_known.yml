@@ -1,0 +1,28 @@
+type: object
+properties:
+  issuer:
+    type: string
+  authorization_endpoint:
+    type: string
+  token_endpoint:
+    type: string
+  jwks_uri:
+    type: string
+  userinfo_endpoint:
+    type: string
+  response_types_supported:
+    type: array
+    items:
+      type: string
+  subject_types_supported:
+    type: array
+    items:
+      type: string
+  id_token_signing_alg_values_supported:
+    type: array
+    items:
+      type: string
+  scopes_supported:
+    type: array
+    items:
+      type: string

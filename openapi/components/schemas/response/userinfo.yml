@@ -1,0 +1,10 @@
+type: object
+properties:
+  sub:
+    type: string
+  email:
+    type: string
+  email_verified:
+    type: boolean
+  name:
+    type: string

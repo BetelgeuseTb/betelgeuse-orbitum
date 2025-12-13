@@ -1,0 +1,26 @@
+CREATE TABLE orbitum.clients
+(
+    id                         BIGSERIAL PRIMARY KEY,
+    created_at                 TIMESTAMPTZ  NOT NULL,
+    updated_at                 TIMESTAMPTZ  NOT NULL,
+    deleted_at                 TIMESTAMPTZ,
+    orbit_id                   BIGINT       NOT NULL REFERENCES orbitum.orbits (id),
+    client_id                  VARCHAR(200) NOT NULL,
+    client_secret_hash         VARCHAR(512),
+    name                       VARCHAR(255),
+    description                TEXT,
+    redirect_uris              JSONB,
+    post_logout_redirect_uris  JSONB,
+    grant_types                JSONB,
+    response_types             JSONB,
+    token_endpoint_auth_method VARCHAR(100),
+    contacts                   JSONB,
+    logo_uri                   VARCHAR(1024),
+    app_type                   VARCHAR(50),
+    is_public                  BOOLEAN,
+    is_active                  BOOLEAN,
+    allowed_cors_origins       JSONB,
+    allowed_scopes             JSONB,
+    metadata                   JSONB,
+    UNIQUE (orbit_id, client_id)
+);

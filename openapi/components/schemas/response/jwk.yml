@@ -1,0 +1,14 @@
+type: object
+properties:
+  kty:
+    type: string
+  use:
+    type: string
+  kid:
+    type: string
+  alg:
+    type: string
+  n:
+    type: string
+  e:
+    type: string

@@ -1,0 +1,237 @@
+erDiagram
+    ORBITS {
+        BIGSERIAL id PK "PK"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        TIMESTAMPTZ deleted_at
+        VARCHAR name "unique"
+        VARCHAR display_name
+        TEXT description
+        VARCHAR issuer
+        VARCHAR domain
+        JSONB config
+        JSONB default_scopes
+    }
+
+    USERS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        TIMESTAMPTZ deleted_at
+        BIGINT orbit_id FK
+        VARCHAR username
+        VARCHAR email
+        BOOLEAN email_verified
+        VARCHAR password_hash
+        VARCHAR password_algo
+        TIMESTAMPTZ last_password_change
+        VARCHAR display_name
+        JSONB profile
+        BOOLEAN is_active
+        BOOLEAN is_locked
+        BOOLEAN mfa_enabled
+        JSONB metadata
+    }
+
+    CLIENTS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        TIMESTAMPTZ deleted_at
+        BIGINT orbit_id FK
+        VARCHAR client_id
+        VARCHAR client_secret_hash
+        VARCHAR name
+        TEXT description
+        JSONB redirect_uris
+        JSONB post_logout_redirect_uris
+        JSONB grant_types
+        JSONB response_types
+        VARCHAR token_endpoint_auth_method
+        JSONB contacts
+        VARCHAR logo_uri
+        VARCHAR app_type
+        BOOLEAN is_public
+        BOOLEAN is_active
+        JSONB allowed_cors_origins
+        JSONB allowed_scopes
+        JSONB metadata
+    }
+
+    SESSIONS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        BIGINT orbit_id FK
+        BIGINT user_id FK
+        BIGINT client_id FK
+        TIMESTAMPTZ started_at
+        TIMESTAMPTZ last_active_at
+        TIMESTAMPTZ expires_at
+        BOOLEAN revoked
+        TEXT device_info
+        VARCHAR ip
+        JSONB metadata
+    }
+
+    ACCESS_TOKENS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        VARCHAR jti "unique"
+        BIGINT orbit_id FK
+        BIGINT client_id FK
+        BIGINT user_id FK
+        BOOLEAN is_jwt
+        TEXT token_string
+        JSONB scope
+        TIMESTAMPTZ issued_at
+        VARCHAR token_type
+        BOOLEAN revoked
+        JSONB metadata
+        BIGINT refresh_token_id FK
+    }
+
+    REFRESH_TOKENS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        TEXT token_string
+        VARCHAR jti "unique"
+        BIGINT orbit_id FK
+        BIGINT client_id FK
+        BIGINT user_id FK
+        BOOLEAN revoked
+        BIGINT rotated_from_id FK
+        BIGINT rotated_to_id FK
+        JSONB scopes
+        JSONB metadata
+        TIMESTAMPTZ last_used_at
+        INT use_count
+    }
+
+    AUTH_CODES {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ expires_at
+        VARCHAR code "unique"
+        BIGINT orbit_id FK
+        BIGINT client_id FK
+        BIGINT user_id FK
+        TEXT redirect_uri
+        JSONB scope
+        TEXT code_challenge
+        VARCHAR code_challenge_method
+        BOOLEAN used
+        JSONB metadata
+    }
+
+    REVOKED_TOKENS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        VARCHAR jti
+        TIMESTAMPTZ expires_at
+        BIGINT orbit_id FK
+        VARCHAR reason
+    }
+
+    CONSENTS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        BIGINT orbit_id FK
+        BIGINT user_id FK
+        BIGINT client_id FK
+        JSONB scopes
+        TIMESTAMPTZ granted_at
+        TIMESTAMPTZ expires_at
+        BOOLEAN revoked
+    }
+
+    SCOPES {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        BIGINT orbit_id FK
+        VARCHAR name
+        TEXT description
+        BOOLEAN is_default
+        BOOLEAN is_required
+    }
+
+    JWKS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        BIGINT orbit_id FK
+        VARCHAR kid
+        VARCHAR use
+        VARCHAR alg
+        VARCHAR kty
+        JSONB public_key_jwk
+        TEXT private_key_cipher
+        BOOLEAN is_active
+        TIMESTAMPTZ not_before
+        TIMESTAMPTZ expires_at
+        JSONB metadata
+    }
+
+    TOTS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+        BIGINT user_id FK
+        BIGINT orbit_id FK
+        TEXT secret_cipher
+        VARCHAR algorithm
+        INT digits
+        INT period
+        VARCHAR issuer
+        VARCHAR label
+        BIGINT last_used_step
+        BOOLEAN is_confirmed
+        VARCHAR name
+    }
+
+    AUDIT_LOGS {
+        BIGSERIAL id PK
+        TIMESTAMPTZ created_at
+        BIGINT actor_user_id FK
+        BIGINT actor_client_id FK
+        VARCHAR action
+        VARCHAR result
+        VARCHAR ip
+        BIGINT orbit_id FK
+        JSONB details
+    }
+
+    %% relationships (cardinalities approximated from FK and ON DELETE rules)
+    ORBITS ||--o{ USERS : "contains"
+    ORBITS ||--o{ CLIENTS : "contains"
+    ORBITS ||--o{ SESSIONS : "contains"
+    ORBITS ||--o{ ACCESS_TOKENS : "contains"
+    ORBITS ||--o{ REFRESH_TOKENS : "contains"
+    ORBITS ||--o{ AUTH_CODES : "contains"
+    ORBITS ||--o{ REVOKED_TOKENS : "contains"
+    ORBITS ||--o{ CONSENTS : "contains"
+    ORBITS ||--o{ SCOPES : "contains"
+    ORBITS ||--o{ JWKS : "contains"
+    ORBITS ||--o{ TOTS : "contains"
+    ORBITS ||--o{ AUDIT_LOGS : "contains"
+
+    CLIENTS ||--o{ ACCESS_TOKENS : "issues"
+    CLIENTS ||--o{ REFRESH_TOKENS : "issues"
+    CLIENTS ||--o{ AUTH_CODES : "issues"
+    CLIENTS ||--o{ CONSENTS : "belongs_to"
+
+    USERS ||--o{ SESSIONS : "has"
+    USERS ||--o{ ACCESS_TOKENS : "owns"
+    USERS ||--o{ REFRESH_TOKENS : "owns"
+    USERS ||--o{ AUTH_CODES : "owns"
+    USERS ||--o{ CONSENTS : "gives"
+    USERS ||--o{ TOTS : "owns"
+
+    REFRESH_TOKENS ||--o{ ACCESS_TOKENS : "may_refresh"
+    AUTH_CODES ||--o{ ACCESS_TOKENS : "exchange_for"
+    AUDIT_LOGS }o--|| USERS : "actor"
+    AUDIT_LOGS }o--|| CLIENTS : "actor"

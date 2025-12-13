@@ -1,0 +1,6 @@
+type: object
+properties:
+  post_logout_redirect_uri:
+    type: string
+  state:
+    type: string
