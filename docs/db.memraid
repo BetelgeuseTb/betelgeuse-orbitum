@@ -8,7 +8,7 @@ erDiagram
         VARCHAR display_name
         TEXT description
         VARCHAR issuer
-        VARCHAR domain
+        VARCHAR models
         JSONB config
         JSONB default_scopes
     }

@@ -8,7 +8,7 @@ CREATE TABLE orbitum.orbits
     display_name   VARCHAR(255),
     description    TEXT,
     issuer         VARCHAR(512) NOT NULL,
-    domain         VARCHAR(255),
+    models         VARCHAR(255),
     config         JSONB,
     default_scopes JSONB
 );

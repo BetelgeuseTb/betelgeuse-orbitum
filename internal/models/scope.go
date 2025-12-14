@@ -1,6 +1,9 @@
-package domain
+package models
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Scope struct {
 	ID          int64
@@ -8,7 +11,9 @@ type Scope struct {
 	Name        string
 	Description string
 	IsDefault   bool
-	IsRequired  bool
+	IsActive    bool
+	Metadata    json.RawMessage
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	DeletedAt   *time.Time
 }
