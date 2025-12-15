@@ -1,237 +1,345 @@
-erDiagram
-    ORBITS {
-        BIGSERIAL id PK "PK"
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        TIMESTAMPTZ deleted_at
-        VARCHAR name "unique"
-        VARCHAR display_name
-        TEXT description
-        VARCHAR issuer
-        VARCHAR models
-        JSONB config
-        JSONB default_scopes
+classDiagram
+    %% Orbit (tenant/realm)
+    class Orbit {
+        int64 ID
+        string Name
+        string DisplayName
+        string Description
+        string Issuer
+        string Domain
+        json.RawMessage Config
+        json.RawMessage DefaultScopes
+        time.Time CreatedAt
+        time.Time UpdatedAt
+        *time.Time DeletedAt
     }
 
-    USERS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        TIMESTAMPTZ deleted_at
-        BIGINT orbit_id FK
-        VARCHAR username
-        VARCHAR email
-        BOOLEAN email_verified
-        VARCHAR password_hash
-        VARCHAR password_algo
-        TIMESTAMPTZ last_password_change
-        VARCHAR display_name
-        JSONB profile
-        BOOLEAN is_active
-        BOOLEAN is_locked
-        BOOLEAN mfa_enabled
-        JSONB metadata
+    %% User
+    class User {
+        int64 ID
+        int64 OrbitID
+        string Username
+        string Email
+        bool EmailVerified
+        string PasswordHash
+        string PasswordAlgo
+        *time.Time LastPasswordChange
+        string DisplayName
+        json.RawMessage Profile
+        bool IsActive
+        bool IsLocked
+        bool MFAEnabled
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
+        *time.Time DeletedAt
     }
 
-    CLIENTS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        TIMESTAMPTZ deleted_at
-        BIGINT orbit_id FK
-        VARCHAR client_id
-        VARCHAR client_secret_hash
-        VARCHAR name
-        TEXT description
-        JSONB redirect_uris
-        JSONB post_logout_redirect_uris
-        JSONB grant_types
-        JSONB response_types
-        VARCHAR token_endpoint_auth_method
-        JSONB contacts
-        VARCHAR logo_uri
-        VARCHAR app_type
-        BOOLEAN is_public
-        BOOLEAN is_active
-        JSONB allowed_cors_origins
-        JSONB allowed_scopes
-        JSONB metadata
+    %% Client
+    class Client {
+        int64 ID
+        int64 OrbitID
+        string ClientID
+        string ClientSecretHash
+        string Name
+        string Description
+        json.RawMessage RedirectURIs
+        json.RawMessage PostLogoutRedirectURIs
+        json.RawMessage GrantTypes
+        json.RawMessage ResponseTypes
+        string TokenEndpointAuthMethod
+        json.RawMessage Contacts
+        string LogoURI
+        string AppType
+        bool IsPublic
+        bool IsActive
+        json.RawMessage AllowedCORSOrigins
+        json.RawMessage AllowedScopes
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
+        *time.Time DeletedAt
     }
 
-    SESSIONS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        BIGINT orbit_id FK
-        BIGINT user_id FK
-        BIGINT client_id FK
-        TIMESTAMPTZ started_at
-        TIMESTAMPTZ last_active_at
-        TIMESTAMPTZ expires_at
-        BOOLEAN revoked
-        TEXT device_info
-        VARCHAR ip
-        JSONB metadata
+    %% Role & Permission
+    class Role {
+        int64 ID
+        int64 OrbitID
+        string Name
+        map[string]any Metadata
+        time.Time CreatedAt
     }
 
-    ACCESS_TOKENS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ expires_at
-        VARCHAR jti "unique"
-        BIGINT orbit_id FK
-        BIGINT client_id FK
-        BIGINT user_id FK
-        BOOLEAN is_jwt
-        TEXT token_string
-        JSONB scope
-        TIMESTAMPTZ issued_at
-        VARCHAR token_type
-        BOOLEAN revoked
-        JSONB metadata
-        BIGINT refresh_token_id FK
+    class Permission {
+        int64 ID
+        int64 OrbitID
+        string Name
+        map[string]any Metadata
+        time.Time CreatedAt
     }
 
-    REFRESH_TOKENS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ expires_at
-        TEXT token_string
-        VARCHAR jti "unique"
-        BIGINT orbit_id FK
-        BIGINT client_id FK
-        BIGINT user_id FK
-        BOOLEAN revoked
-        BIGINT rotated_from_id FK
-        BIGINT rotated_to_id FK
-        JSONB scopes
-        JSONB metadata
-        TIMESTAMPTZ last_used_at
-        INT use_count
+    class UserRole {
+        int64 UserID
+        int64 RoleID
+        time.Time CreatedAt
     }
 
-    AUTH_CODES {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ expires_at
-        VARCHAR code "unique"
-        BIGINT orbit_id FK
-        BIGINT client_id FK
-        BIGINT user_id FK
-        TEXT redirect_uri
-        JSONB scope
-        TEXT code_challenge
-        VARCHAR code_challenge_method
-        BOOLEAN used
-        JSONB metadata
+    class RolePermission {
+        int64 RoleID
+        int64 PermissionID
+        time.Time CreatedAt
     }
 
-    REVOKED_TOKENS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        VARCHAR jti
-        TIMESTAMPTZ expires_at
-        BIGINT orbit_id FK
-        VARCHAR reason
+    %% OAuth2 / OIDC tables
+    class AccessToken {
+        int64 ID
+        string JTI
+        int64 OrbitID
+        int64 ClientID
+        *int64 UserID
+        bool IsJWT
+        string TokenString
+        json.RawMessage Scope
+        time.Time IssuedAt
+        string TokenType
+        bool Revoked
+        json.RawMessage Metadata
+        *int64 RefreshTokenID
+        time.Time CreatedAt
+        time.Time ExpiresAt
     }
 
-    CONSENTS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        BIGINT orbit_id FK
-        BIGINT user_id FK
-        BIGINT client_id FK
-        JSONB scopes
-        TIMESTAMPTZ granted_at
-        TIMESTAMPTZ expires_at
-        BOOLEAN revoked
+    class RefreshToken {
+        int64 ID
+        time.Time ExpiresAt
+        string TokenString
+        string JTI
+        int64 OrbitID
+        int64 ClientID
+        *int64 UserID
+        bool Revoked
+        *int64 RotatedFromID
+        *int64 RotatedToID
+        json.RawMessage Scopes
+        json.RawMessage Metadata
+        *time.Time LastUsedAt
+        int UseCount
+        time.Time CreatedAt
     }
 
-    SCOPES {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        BIGINT orbit_id FK
-        VARCHAR name
-        TEXT description
-        BOOLEAN is_default
-        BOOLEAN is_required
+    class AuthCode {
+        int64 ID
+        string Code
+        int64 OrbitID
+        int64 ClientID
+        *int64 UserID
+        string RedirectURI
+        json.RawMessage Scope
+        string CodeChallenge
+        string CodeChallengeMethod
+        bool Used
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time ExpiresAt
     }
 
-    JWKS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        BIGINT orbit_id FK
-        VARCHAR kid
-        VARCHAR use
-        VARCHAR alg
-        VARCHAR kty
-        JSONB public_key_jwk
-        TEXT private_key_cipher
-        BOOLEAN is_active
-        TIMESTAMPTZ not_before
-        TIMESTAMPTZ expires_at
-        JSONB metadata
+    class DeviceCode {
+        int64 ID
+        int64 OrbitID
+        int64 ClientID
+        string DeviceCodeHash
+        string UserCode
+        string[] Scopes
+        time.Time ExpiresAt
+        int PollIntervalSec
+        DeviceCodeStatus Status
+        *int64 UserID
+        map[string]any Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
     }
 
-    TOTS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        TIMESTAMPTZ updated_at
-        BIGINT user_id FK
-        BIGINT orbit_id FK
-        TEXT secret_cipher
-        VARCHAR algorithm
-        INT digits
-        INT period
-        VARCHAR issuer
-        VARCHAR label
-        BIGINT last_used_step
-        BOOLEAN is_confirmed
-        VARCHAR name
+    class TokenIntrospection {
+        int64 ID
+        int64 OrbitID
+        string TokenJTI
+        bool Active
+        map[string]any Response
+        time.Time ExpiresAt
+        time.Time CreatedAt
     }
 
-    AUDIT_LOGS {
-        BIGSERIAL id PK
-        TIMESTAMPTZ created_at
-        BIGINT actor_user_id FK
-        BIGINT actor_client_id FK
-        VARCHAR action
-        VARCHAR result
-        VARCHAR ip
-        BIGINT orbit_id FK
-        JSONB details
+    class TokenRevocation {
+        int64 ID
+        int64 OrbitID
+        string TokenJTI
+        string TokenType
+        string Reason
+        time.Time RevokedAt
+        *int64 RevokedBy
+        map[string]any Metadata
     }
 
-    %% relationships (cardinalities approximated from FK and ON DELETE rules)
-    ORBITS ||--o{ USERS : "contains"
-    ORBITS ||--o{ CLIENTS : "contains"
-    ORBITS ||--o{ SESSIONS : "contains"
-    ORBITS ||--o{ ACCESS_TOKENS : "contains"
-    ORBITS ||--o{ REFRESH_TOKENS : "contains"
-    ORBITS ||--o{ AUTH_CODES : "contains"
-    ORBITS ||--o{ REVOKED_TOKENS : "contains"
-    ORBITS ||--o{ CONSENTS : "contains"
-    ORBITS ||--o{ SCOPES : "contains"
-    ORBITS ||--o{ JWKS : "contains"
-    ORBITS ||--o{ TOTS : "contains"
-    ORBITS ||--o{ AUDIT_LOGS : "contains"
+    class RevokedToken {
+        int64 ID
+        string JTI
+        time.Time ExpiresAt
+        int64 OrbitID
+        string Reason
+        time.Time CreatedAt
+    }
 
-    CLIENTS ||--o{ ACCESS_TOKENS : "issues"
-    CLIENTS ||--o{ REFRESH_TOKENS : "issues"
-    CLIENTS ||--o{ AUTH_CODES : "issues"
-    CLIENTS ||--o{ CONSENTS : "belongs_to"
+    class Scope {
+        int64 ID
+        int64 OrbitID
+        string Name
+        string Description
+        bool IsDefault
+        bool IsActive
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
+        *time.Time DeletedAt
+    }
 
-    USERS ||--o{ SESSIONS : "has"
-    USERS ||--o{ ACCESS_TOKENS : "owns"
-    USERS ||--o{ REFRESH_TOKENS : "owns"
-    USERS ||--o{ AUTH_CODES : "owns"
-    USERS ||--o{ CONSENTS : "gives"
-    USERS ||--o{ TOTS : "owns"
+    class Consent {
+        int64 ID
+        int64 OrbitID
+        int64 UserID
+        int64 ClientID
+        json.RawMessage Scopes
+        time.Time GrantedAt
+        *time.Time ExpiresAt
+        bool Revoked
+        time.Time CreatedAt
+        time.Time UpdatedAt
+    }
 
-    REFRESH_TOKENS ||--o{ ACCESS_TOKENS : "may_refresh"
-    AUTH_CODES ||--o{ ACCESS_TOKENS : "exchange_for"
-    AUDIT_LOGS }o--|| USERS : "actor"
-    AUDIT_LOGS }o--|| CLIENTS : "actor"
+    %% Security & Auditing
+    class SecurityEvent {
+        int64 ID
+        int64 OrbitID
+        *int64 UserID
+        string EventType
+        string Severity
+        map[string]any Metadata
+        time.Time CreatedAt
+    }
+
+    class AuditLog {
+        int64 ID
+        int64 OrbitID
+        *int64 ActorID
+        string Action
+        string Target
+        map[string]any Metadata
+        time.Time CreatedAt
+    }
+
+    %% Sessions
+    class Session {
+        int64 ID
+        int64 OrbitID
+        int64 UserID
+        *int64 ClientID
+        time.Time StartedAt
+        time.Time LastActiveAt
+        *time.Time ExpiresAt
+        bool Revoked
+        string DeviceInfo
+        string IP
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
+    }
+
+    %% TOTP & Recovery
+    class TOTP {
+        int64 ID
+        int64 UserID
+        int64 OrbitID
+        string SecretCipher
+        string Algorithm
+        int Digits
+        int Period
+        string Issuer
+        string Label
+        int64 LastUsedStep
+        bool IsConfirmed
+        string Name
+        time.Time CreatedAt
+        time.Time UpdatedAt
+    }
+
+    class PasswordHistory {
+        int64 ID
+        int64 UserID
+        string PasswordHash
+        time.Time CreatedAt
+    }
+
+    class RecoveryCode {
+        int64 ID
+        int64 UserID
+        string CodeHash
+        *time.Time UsedAt
+        time.Time CreatedAt
+    }
+
+    %% JWKey
+    class JWKey {
+        int64 ID
+        int64 OrbitID
+        string Kid
+        string Use
+        string Alg
+        string Kty
+        json.RawMessage PublicKeyJWK
+        string PrivateKeyCipher
+        bool IsActive
+        *time.Time NotBefore
+        *time.Time ExpiresAt
+        json.RawMessage Metadata
+        time.Time CreatedAt
+        time.Time UpdatedAt
+    }
+
+    %% Relationships
+    Orbit "1" -- "0..*" User : contains
+    Orbit "1" -- "0..*" Client : contains
+    Orbit "1" -- "0..*" Role : contains
+    Orbit "1" -- "0..*" Permission : contains
+    Orbit "1" -- "0..*" Scope : contains
+    Orbit "1" -- "0..*" AccessToken : contains
+    Orbit "1" -- "0..*" RefreshToken : contains
+    Orbit "1" -- "0..*" AuthCode : contains
+    Orbit "1" -- "0..*" DeviceCode : contains
+    Orbit "1" -- "0..*" TOTP : contains
+    Orbit "1" -- "0..*" JWKey : contains
+    Orbit "1" -- "0..*" Session : contains
+    Orbit "1" -- "0..*" Consent : contains
+    Orbit "1" -- "0..*" SecurityEvent : contains
+    Orbit "1" -- "0..*" AuditLog : contains
+    Orbit "1" -- "0..*" RevokedToken : contains
+    Orbit "1" -- "0..*" TokenRevocation : contains
+
+    User "1" -- "0..*" UserRole : has
+    Role "1" -- "0..*" UserRole : assigns
+    Role "1" -- "0..*" RolePermission : grants
+    Permission "1" -- "0..*" RolePermission : belongs_to
+    User "1" -- "0..*" AccessToken : owns
+    Client "1" -- "0..*" AccessToken : issued_to
+    User "1" -- "0..*" RefreshToken : owns
+    Client "1" -- "0..*" RefreshToken : issued_to
+    User "1" -- "0..*" AuthCode : owns
+    Client "1" -- "0..*" AuthCode : issued_to
+    User "1" -- "0..*" DeviceCode : grants
+    Client "1" -- "0..*" DeviceCode : issued_to
+    User "1" -- "0..*" Consent : grants
+    Client "1" -- "0..*" Consent : granted_to
+    User "1" -- "0..*" TOTP : owns
+    User "1" -- "0..*" PasswordHistory : stores
+    User "1" -- "0..*" RecoveryCode : owns
+    User "1" -- "0..*" Session : owns
+    AccessToken "1" -- "0..1" RefreshToken : linked_to
+    AccessToken "1" -- "0..*" TokenIntrospection : introspected_token
